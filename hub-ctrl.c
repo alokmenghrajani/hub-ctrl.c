@@ -25,16 +25,14 @@
 #define HUB_LED_GREEN 2
 
 static void
-usage(const char *progname)
-{
+usage(const char *progname) {
   fprintf(stderr,
 	   "Usage: %s [{-h HUBNUM | -b BUSNUM -d DEVNUM}] \\\n"
 	   "          [-P PORT] [{-p [VALUE]|-l [VALUE]}]\n", progname);
 }
 
 static void
-exit_with_usage(const char *progname)
-{
+exit_with_usage(const char *progname) {
   usage(progname);
   exit(1);
 }
@@ -67,13 +65,11 @@ static struct hub_info hubs[MAX_HUBS];
 static int number_of_hubs_with_feature;
 
 static void
-hub_port_status(usb_dev_handle *uh, int nport)
-{
+hub_port_status(usb_dev_handle *uh, int nport) {
   int i;
 
   printf(" Hub Port Status:\n");
-  for(i = 0; i < nport; i++)
-    {
+  for(i = 0; i < nport; i++) {
       char buf[USB_STATUS_SIZE];
       int ret;
 
@@ -83,8 +79,7 @@ hub_port_status(usb_dev_handle *uh, int nport)
 			     0, i + 1,
 			     buf, USB_STATUS_SIZE,
 			     CTRL_TIMEOUT);
-      if (ret < 0)
-	{
+      if (ret < 0) {
 	  fprintf(stderr,
 		   "cannot read port %d status, %s (%d)\n",
 		   i + 1, strerror(errno), errno);
@@ -117,25 +112,21 @@ hub_port_status(usb_dev_handle *uh, int nport)
 }
 
 static int
-usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
-{
+usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub) {
   struct usb_bus *busses;
   struct usb_bus *bus;
 
   number_of_hubs_with_feature = 0;
   busses = usb_get_busses();
-  if (busses == NULL)
-    {
+  if (busses == NULL) {
       perror("failed to access USB");
       return -1;
     }
 
-  for (bus = busses; bus; bus = bus->next)
-    {
+  for (bus = busses; bus; bus = bus->next) {
       struct usb_device *dev;
 
-      for (dev = bus->devices; dev; dev = dev->next)
-	{
+      for (dev = bus->devices; dev; dev = dev->next) {
 	  usb_dev_handle *uh;
 	  int print = 0;
 
@@ -150,8 +141,7 @@ usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
 
 	  uh = usb_open(dev);
 
-	  if (uh != NULL)
-	    {
+	  if (uh != NULL) {
 	      char buf[1024];
 	      int len;
 	      int nport;
@@ -160,8 +150,7 @@ usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
 					  USB_REQ_GET_DESCRIPTOR,
 					  USB_DT_HUB << 8, 0,
 					  buf, sizeof(buf), CTRL_TIMEOUT))
-		  > sizeof(struct usb_hub_descriptor))
-		{
+		  > sizeof(struct usb_hub_descriptor)) {
 		  if (!(uhd->wHubCharacteristics[0] & HUB_CHAR_PORTIND)
 		      && (uhd->wHubCharacteristics[0] & HUB_CHAR_LPSM) >= 2)
 		    continue;
@@ -171,8 +160,7 @@ usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
 			    number_of_hubs_with_feature,
 			    bus->dirname, dev->devnum);
 
-		  switch ((uhd->wHubCharacteristics[0] & HUB_CHAR_LPSM))
-		    {
+		  switch ((uhd->wHubCharacteristics[0] & HUB_CHAR_LPSM)) {
 		    case 0:
 		      if (print)
 			fprintf(stderr, " INFO: ganged switching.\n");
@@ -191,9 +179,7 @@ usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
 		  if (print
 		      && !(uhd->wHubCharacteristics[0] & HUB_CHAR_PORTIND))
 		    fprintf(stderr, " WARN: Port indicators are NOT supported.\n");
-		}
-	      else
-		{
+		} else {
 		  perror("Can't get hub descriptor");
 		  usb_close(uh);
 		  continue;
@@ -221,8 +207,7 @@ usb_find_hubs(int listing, int verbose, int busnum, int devnum, int hub)
 }
 
 int
-get_hub(int busnum, int devnum)
-{
+get_hub(int busnum, int devnum) {
   int i;
 
   for (i = 0; i < number_of_hubs_with_feature; i++)
@@ -256,8 +241,7 @@ get_hub(int busnum, int devnum)
  */
 
 int
-main(int argc, const char *argv[])
-{
+main(int argc, const char *argv[]) {
   int busnum = 0, devnum = 0;
   int cmd = COMMAND_SET_NONE;
   int port = 1;
@@ -275,8 +259,7 @@ main(int argc, const char *argv[])
 
   for (i = 1; i < argc; i++)
     if (argv[i][0] == '-')
-      switch (argv[i][1])
-	{
+      switch (argv[i][1]) {
 	case 'h':
 	  if (++i >= argc || busnum > 0 || devnum > 0)
 	    exit_with_usage(argv[0]);
@@ -349,8 +332,7 @@ main(int argc, const char *argv[])
   usb_find_busses();
   usb_find_devices();
 
-  if (usb_find_hubs(listing, verbose, busnum, devnum, hub) <= 0)
-    {
+  if (usb_find_hubs(listing, verbose, busnum, devnum, hub) <= 0) {
       fprintf(stderr, "No hubs found.\n");
       exit(1);
     }
@@ -364,28 +346,20 @@ main(int argc, const char *argv[])
   if (hub >= 0 && hub < number_of_hubs_with_feature)
     uh = usb_open(hubs[hub].dev);
 
-  if (uh == NULL)
-    {
+  if (uh == NULL) {
       fprintf(stderr, "Device not found.\n");
       result = 1;
-    }
-  else
-    {
+    } else {
       if (cmd == COMMAND_SET_POWER)
-	if (value)
-	  {
+	if (value) {
 	    request = USB_REQ_SET_FEATURE;
 	    feature = USB_PORT_FEAT_POWER;
 	    index = port;
-	  }
-	else
-	  {
+	  } else {
 	    request = USB_REQ_CLEAR_FEATURE;
 	    feature = USB_PORT_FEAT_POWER;
 	    index = port;
-	  }
-      else
-	{
+	  } else {
 	  request = USB_REQ_SET_FEATURE;
 	  feature = USB_PORT_FEAT_INDICATOR;
 	  index = (value << 8) | port;
@@ -396,8 +370,7 @@ main(int argc, const char *argv[])
 		request, feature, index);
 
       if (usb_control_msg(uh, USB_RT_PORT, request, feature, index,
-			   NULL, 0, CTRL_TIMEOUT) < 0)
-	{
+			   NULL, 0, CTRL_TIMEOUT) < 0) {
 	  perror("failed to control.\n");
 	  result = 1;
 	}
