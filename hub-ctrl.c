@@ -271,53 +271,62 @@ main(int argc, const char *argv[]) {
     if (argv[i][0] == '-') {
       switch (argv[i][1]) {
       	case 'h':
-      	  if (++i >= argc || busnum > 0 || devnum > 0)
+      	  if (++i >= argc || busnum > 0 || devnum > 0) {
       	    exit_with_usage(argv[0]);
+          }
       	  hub = atoi(argv[i]);
       	  break;
 
       	case 'b':
-      	  if (++i >= argc || hub >= 0)
+      	  if (++i >= argc || hub >= 0) {
       	    exit_with_usage(argv[0]);
+          }
       	  busnum = atoi(argv[i]);
       	  break;
 
       	case 'd':
-      	  if (++i >= argc || hub >= 0)
+      	  if (++i >= argc || hub >= 0) {
       	    exit_with_usage(argv[0]);
+          }
       	  devnum = atoi(argv[i]);
       	  break;
 
       	case 'P':
-      	  if (++i >= argc)
+      	  if (++i >= argc) {
       	    exit_with_usage(argv[0]);
+          }
       	  port = atoi(argv[i]);
       	  break;
 
       	case 'l':
-      	  if (cmd != COMMAND_SET_NONE)
+      	  if (cmd != COMMAND_SET_NONE) {
       	    exit_with_usage(argv[0]);
-      	  if (++i < argc)
+          }
+      	  if (++i < argc) {
       	    value = atoi(argv[i]);
-      	  else
+          } else {
       	    value = HUB_LED_GREEN;
+          }
       	  cmd = COMMAND_SET_LED;
       	  break;
 
       	case 'p':
-      	  if (cmd != COMMAND_SET_NONE)
+      	  if (cmd != COMMAND_SET_NONE) {
       	    exit_with_usage(argv[0]);
-      	  if (++i < argc)
+          }
+      	  if (++i < argc) {
       	    value = atoi(argv[i]);
-      	  else
+          } else {
       	    value= 0;
+          }
       	  cmd = COMMAND_SET_POWER;
       	  break;
 
       	case 'v':
       	  verbose = 1;
-      	  if (argc == 2)
+      	  if (argc == 2) {
       	    listing = 1;
+          }
       	  break;
 
       	default:
