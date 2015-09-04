@@ -6,6 +6,8 @@
  * This file can be distributed under the terms and conditions of the
  * GNU General Public License version 2 (or later).
  *
+ * Compile with:
+ * gcc -o hub-ctrl -lusb hub-ctrl.c
  */
 
 #include <errno.h>
